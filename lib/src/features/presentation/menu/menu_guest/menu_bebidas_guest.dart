@@ -8,15 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:foodie/src/colors/colors.dart';
-import 'package:foodie/src/features/presentation/tabs/tabs_guest/CategoriasWidgetGuest.dart';
-import 'package:foodie/src/features/presentation/tabs/widget_explorar_tab/CategoriasWidget.dart';
+import 'package:foodie/src/features/presentation/tabs/widget_explorar_tab/AppBarWidget.dart';
 
-class ExplorarTabGuest extends StatefulWidget {
+class MenuBebidaGuest extends StatefulWidget {
   @override
-  _ExplorarTabGuestState createState() => _ExplorarTabGuestState();
+  _MenuBebidaGuestState createState() => _MenuBebidaGuestState();
 }
 
-class _ExplorarTabGuestState extends State<ExplorarTabGuest> {
+class _MenuBebidaGuestState extends State<MenuBebidaGuest> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   User? user;
   String userEmail = "";
@@ -95,13 +94,12 @@ class _ExplorarTabGuestState extends State<ExplorarTabGuest> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Se agrego $nombre al carrito',
+          'Sea agregado $nombre al carrito',
           style: TextStyle(color: Colors.white),
         ),
         behavior: SnackBarBehavior.floating,
         backgroundColor: amarillo,
         duration: Duration(seconds: 2),
-        width: 200,
       ),
     );
   }
@@ -118,109 +116,10 @@ class _ExplorarTabGuestState extends State<ExplorarTabGuest> {
     });
   }
 
-// ** PopularItemWidget
-  Future<List<Widget>> _getPopularItems() async {
-    ProductService productService = ProductService();
-    List<Product> products =
-        await productService.getProducts(limit: 6, ordeBy: 'precio');
-
-    return products.map((product) {
-      final nombre = product.name;
-      final precio = product.price;
-      final imagenUrl = product.img;
-      // final descripcion = product.descripcion;
-
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 5),
-        child: Row(children: [
-          // Single Items
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 7),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(context, 'itemPageGuest', arguments: {
-                  'name': product.name,
-                  'price': product.price,
-                  'img': product.img,
-                  'des': product.descripcion,
-                });
-              },
-              child: Container(
-                width: 170,
-                height: 300,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 3,
-                        blurRadius: 10,
-                        offset: Offset(0, 3),
-                      )
-                    ]),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CachedNetworkImage(
-                        imageUrl: imagenUrl,
-                        placeholder: (context, url) =>
-                            CircularProgressIndicator(),
-                        errorWidget: (context, url, error) => Icon(Icons.error),
-                      ),
-                      SizedBox(height: 12),
-                      Text(
-                        nombre,
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        "\$ $precio",
-                        style: TextStyle(
-                            fontSize: 17,
-                            color: amarillo,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Spacer(),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.favorite_border,
-                                color: amarillo, size: 26),
-                            onPressed: () {
-                              Navigator.pushNamed(context, 'perfilGuest');
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(CupertinoIcons.cart,
-                                color: amarillo, size: 26),
-                            onPressed: () {
-                              Navigator.pushNamed(context, 'perfilGuest');
-                            },
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ]),
-      );
-    }).toList();
-  }
-// ** PopularItemWidget
-
 //** NewestItemWidget
   Future<List<Widget>> _getNewetsItems() async {
     ProductService productService = ProductService();
-    List<Product> products =
-        await productService.getProducts(limit: 10, ordeBy: 'nombre');
+    List<Product> products = await productService.getProducts(type: 'bebidas');
 
     return products.map((product) {
       final nombre = product.name;
@@ -247,12 +146,7 @@ class _ExplorarTabGuestState extends State<ExplorarTabGuest> {
           child: Row(children: [
             InkWell(
               onTap: () {
-                Navigator.pushNamed(context, 'itemPageGuest', arguments: {
-                  'name': product.name,
-                  'price': product.price,
-                  'img': product.img,
-                  'des': product.descripcion,
-                });
+                // Navigator.pushNamed(context, 'itemPage');
               },
               child: Container(
                 alignment: Alignment.center,
@@ -340,14 +234,16 @@ class _ExplorarTabGuestState extends State<ExplorarTabGuest> {
           padding: const EdgeInsets.all(0.0),
           child: Column(
             children: [
+              const SizedBox(height: 30),
+              AppbarWidget(),
               //** Buscador
               GestureDetector(
                 onTap: () {
-                  Navigator.pushNamed(context, 'searchGuest');
+                  Navigator.pushNamed(context, 'search');
                 },
                 child: Padding(
                   padding: EdgeInsets.symmetric(
-                    vertical: 50,
+                    vertical: 0,
                     horizontal: 15,
                   ),
                   child: Container(
@@ -388,51 +284,12 @@ class _ExplorarTabGuestState extends State<ExplorarTabGuest> {
               ),
               //** Buscador
 
-              //** Catecorias */
+              //** Bebidas */
               Padding(
                 padding: EdgeInsets.only(top: 20, left: 10),
                 child: Text(
-                  'Categoria',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                ),
-              ),
-              CategoriasWidgetGuest(),
-              //** PopularesItemWidget
-              Padding(
-                padding: EdgeInsets.only(top: 20, left: 10),
-                child: Text(
-                  "Populares",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
-                ),
-              ),
-              FutureBuilder(
-                future: _getPopularItems(),
-                builder: (BuildContext context,
-                    AsyncSnapshot<List<Widget>> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator(); // Muestra un indicador de carga mientras se espera el Future
-                  } else if (snapshot.hasError) {
-                    return Text(
-                        'Error: ${snapshot.error}'); // Muestra un mensaje de error si el Future falla
-                  } else {
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: snapshot
-                            .data!, // Muestra los widgets en una Row cuando el Future se completa
-                      ),
-                    );
-                  }
-                },
-              ),
-              //** PopularesItemWidget
-
-              //** Mas */
-              Padding(
-                padding: EdgeInsets.only(top: 20, left: 10),
-                child: Text(
-                  "Mas",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+                  "Bebidas",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30.0),
                 ),
               ),
               FutureBuilder(
@@ -511,9 +368,9 @@ class ProductService {
   final CollectionReference productCollection =
       FirebaseFirestore.instance.collection('productos');
 
-  Future<List<Product>> getProducts({int limit = 0, String ordeBy = ''}) async {
+  Future<List<Product>> getProducts({String type = ''}) async {
     QuerySnapshot querySnapshot =
-        await productCollection.orderBy(ordeBy).limit(limit).get();
+        await productCollection.where('tipo', isEqualTo: type).get();
     return querySnapshot.docs
         .map((doc) =>
             Product.fromMap(doc.data() as Map<String, dynamic>, doc.id))
