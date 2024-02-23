@@ -9,7 +9,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:foodie/src/colors/colors.dart';
 import 'package:foodie/src/features/presentation/tabs/tabs_guest/CategoriasWidgetGuest.dart';
-import 'package:foodie/src/features/presentation/tabs/widget_explorar_tab/CategoriasWidget.dart';
 
 class ExplorarTabGuest extends StatefulWidget {
   @override
@@ -17,79 +16,6 @@ class ExplorarTabGuest extends StatefulWidget {
 }
 
 class _ExplorarTabGuestState extends State<ExplorarTabGuest> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  User? user;
-  String userEmail = "";
-  String userName = "";
-
-  static final FirebaseFirestore firestore = FirebaseFirestore.instance;
-  static final FirebaseDatabase database = FirebaseDatabase.instance;
-
-  @override
-  void initState() {
-    super.initState();
-    _getCurrentUser();
-  }
-
-  Future<void> _getCurrentUser() async {
-    user = _auth.currentUser;
-    if (user != null) {
-      await _getUserData();
-    }
-  }
-
-  Future<void> _getUserData() async {
-    if (user!.providerData
-        .any((provider) => provider.providerId == 'google.com')) {
-      _getGoogleUserData();
-    } else {
-      _getEmailPasswordUserData();
-    }
-  }
-
-  Future<void> _getGoogleUserData() async {
-    userName = user!.displayName ?? "";
-    userEmail = user!.email ?? "";
-  }
-
-  Future<void> _getEmailPasswordUserData() async {
-    final userData = await firestore.collection('Users').doc(user!.uid).get();
-    if (userData.exists) {
-      setState(() {
-        userName = userData.get('name');
-        userEmail = userData.get('email');
-      });
-    }
-  }
-
-  final DatabaseReference _databaseRef = database.ref();
-
-  void enviarDatosRealtimeDatabase(String name, double price, String imgUrl) {
-    final userRef = _databaseRef.child("carts").child(user!.uid);
-    final productRef = userRef.child(name);
-
-    userRef.child(name).get().then((snapshot) {
-      if (snapshot.exists) {
-        // Producto ya existe, actualizar quantity
-        int existingQuantity = snapshot.child("quantity").value as int;
-        productRef.set({
-          "nombre": name,
-          "precio": price,
-          "imagen": imgUrl,
-          "quantity": existingQuantity + 1,
-        });
-      } else {
-        // Producto no existe, agregar nuevo
-        productRef.set({
-          "nombre": name,
-          "precio": price,
-          "imagen": imgUrl,
-          "quantity": 1,
-        });
-      }
-    });
-  }
-
 //** Mostrar el mensaje que asido agregado */
   void _showSnackbar(BuildContext context, String nombre) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -104,18 +30,6 @@ class _ExplorarTabGuestState extends State<ExplorarTabGuest> {
         width: 200,
       ),
     );
-  }
-
-//** Agregar a favoritos */
-  void addToFavorites(Product product) {
-    final productRef =
-        _databaseRef.child("favorites").child(user!.uid).child(product.name);
-
-    productRef.set({
-      DatabaseFields.nombre: product.name,
-      DatabaseFields.precio: product.price,
-      DatabaseFields.imagen: product.img,
-    });
   }
 
 // ** PopularItemWidget
